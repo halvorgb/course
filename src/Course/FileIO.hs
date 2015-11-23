@@ -61,41 +61,47 @@ the contents of c
 -- /Tip:/ use @getArgs@ and @run@
 main ::
   IO ()
-main =
-  error "todo: Course.FileIO#main"
+main = run =<< filepath
+  where filepath :: IO FilePath
+        filepath = headOr (error "No file argument found.") <$> getArgs
 
 type FilePath =
   Chars
 
 -- /Tip:/ Use @getFiles@ and @printFiles@.
 run ::
-  Chars
+  FilePath
   -> IO ()
-run =
-  error "todo: Course.FileIO#run"
+run filepath = printFiles =<< files
+  where file :: IO (FilePath, Chars)
+        file = getFile filepath
+
+        filepaths :: IO (List FilePath)
+        filepaths = (lines . snd) <$> file
+
+        files :: IO (List (FilePath, Chars))
+        files = getFiles =<< filepaths
 
 getFiles ::
   List FilePath
   -> IO (List (FilePath, Chars))
-getFiles =
-  error "todo: Course.FileIO#getFiles"
+getFiles filepaths = sequence $ map getFile filepaths
 
 getFile ::
   FilePath
   -> IO (FilePath, Chars)
-getFile =
-  error "todo: Course.FileIO#getFile"
+getFile filepath = (\c -> pure (filepath, c)) =<< contents
+  where contents :: IO Chars
+        contents = readFile filepath
 
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
-printFiles =
-  error "todo: Course.FileIO#printFiles"
+printFiles files = foldLeft (\a (f, c) -> (\_ -> printFile f c) =<< a
+                            ) (return ()) files
 
 printFile ::
   FilePath
   -> Chars
   -> IO ()
-printFile =
-  error "todo: Course.FileIO#printFile"
-
+printFile filepath contents = (\_ -> putStrLn contents) =<< putStrLn ("========= " ++ filepath)
